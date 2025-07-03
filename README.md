@@ -9,12 +9,12 @@
 If you encounter issues with better-sqlite3, run the following command:
 
 ```bash
-cd node_modules/.pnpm/better-sqlite3@12.2.0/node_modules/better-sqlite3 && pnpm build-release
+pnpm run build:sqlite
 ```
 
-這個命令會重新編譯 better-sqlite3 模組，通常可以解決安裝或運行時的問題。
+這個命令會自動查找並重新編譯 better-sqlite3 模組，不論版本為何，通常可以解決安裝或運行時的問題。
 
-This command will recompile the better-sqlite3 module, which typically resolves installation or runtime issues.
+This command will automatically find and recompile the better-sqlite3 module regardless of version, which typically resolves installation or runtime issues.
 
 ### pnpm db:studio 錯誤 / pnpm db:studio Error
 

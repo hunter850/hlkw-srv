@@ -5,7 +5,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production ts-node --transpile-only index.ts",
     "dev": "cross-env NODE_ENV=development nodemon index.ts",
-    "build:sqlite": "cd node_modules/.pnpm/better-sqlite3@12.2.0/node_modules/better-sqlite3 && pnpm build-release && cd -",
+    "build:sqlite": "node build-sqlite.js",
     "db:generate": "drizzle-kit generate",
     "db:drop": "drizzle-kit drop",
     "db:migrate": "drizzle-kit migrate",
