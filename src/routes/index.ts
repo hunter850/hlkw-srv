@@ -1,4 +1,6 @@
 import { Router } from "express";
+// modules
+import { passwordAuth } from "../modules/auth";
 // types
 import type { Request, Response } from "express";
 import { db } from "../drizzle/db";
@@ -31,6 +33,7 @@ router.get("/user", async (_req: Request, res: Response) => {
 
 router.post(
   "/user",
+  passwordAuth,
   async (req: RequestBody<typeof UserTable.$inferInsert>, res: Response) => {
     try {
       if (
