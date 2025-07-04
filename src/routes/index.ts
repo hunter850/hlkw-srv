@@ -4,64 +4,61 @@ import { passwordAuth } from "../modules/auth";
 // types
 import type { Request, Response } from "express";
 import { db } from "../drizzle/db";
-import { UserTable } from "../drizzle/schema";
-import type { RequestBody } from "../types";
+import { HololiveTalentTable } from "../drizzle/schema";
+import type { RequestBody, RequestQuery } from "../types";
+import requestErrorHandler from "../modules/requestErrorHandler";
+import { eq } from "drizzle-orm";
 
 const router = Router();
 
 router.get("/now", (_req: Request, res: Response) => {
-  try {
-    const now = new Date().toISOString();
-    res.status(200).json({ success: true, data: now });
-  } catch (error: any) {
-    res
-      .status(500)
-      .json({ success: false, message: error?.message ?? "Unknown Error" });
-  }
-});
-
-router.get("/user", async (_req: Request, res: Response) => {
-  try {
-    const users = await db.select().from(UserTable);
-    res.status(200).json({ success: true, data: users });
-  } catch (error: any) {
-    res
-      .status(500)
-      .json({ success: false, message: error?.message ?? "Unknown Error" });
-  }
-});
-
-router.post(
-  "/user",
-  passwordAuth,
-  async (req: RequestBody<typeof UserTable.$inferInsert>, res: Response) => {
     try {
-      if (
-        !req.body.name ||
-        !req.body.age ||
-        !req.body.email ||
-        typeof req.body.age !== "number" ||
-        typeof req.body.email !== "string" ||
-        typeof req.body.name !== "string"
-      ) {
-        res
-          .status(400)
-          .json({ success: false, message: "Missing required fields" });
-        return;
-      }
-      const insertData: typeof UserTable.$inferInsert = {
-        name: req.body.name,
-        age: req.body.age,
-        email: req.body.email,
-      };
-      const user = await db.insert(UserTable).values(insertData).returning();
-      res.status(200).json({ success: true, data: user });
+        const now = new Date().toISOString();
+        res.status(200).json({ success: true, data: now });
     } catch (error: any) {
-      res
-        .status(500)
-        .json({ success: false, message: error?.message ?? "Unknown Error" });
+        res.status(500).json({ success: false, message: error?.message ?? "Unknown Error" });
     }
-  }
-);
+});
+
+router.get("/talent_list", async (req: RequestQuery<{ id?: string }>, res) => {
+    try {
+        const { id } = req.query;
+        if (id) {
+            const talent = await db
+                .select()
+                .from(HololiveTalentTable)
+                .where(eq(HololiveTalentTable.id, Number(id)));
+            if (talent.length === 0) {
+                res.status(404).json({ success: false, message: "Talent not found" });
+                return;
+            }
+            res.status(200).json({ success: true, data: talent });
+        } else {
+            const talents = await db.select().from(HololiveTalentTable);
+            res.status(200).json({ success: true, data: talents });
+        }
+    } catch (error: any) {
+        requestErrorHandler(res, error);
+    }
+});
+
+type TalentListRequestBody = Omit<typeof HololiveTalentTable.$inferInsert, "id" | "createdAt" | "updatedAt"> & {
+    createdAt: number | string;
+    updatedAt: number | string;
+};
+
+router.post("/talent_list", passwordAuth, async (req: RequestBody<TalentListRequestBody[]>, res: Response) => {
+    try {
+        const insertData = req.body.map((item) => ({
+            ...item,
+            createdAt: new Date(item.createdAt),
+            updatedAt: new Date(item.updatedAt),
+        }));
+        const talent = await db.insert(HololiveTalentTable).values(insertData);
+        res.status(200).json({ success: true, data: talent });
+    } catch (error: any) {
+        requestErrorHandler(res, error);
+    }
+});
 
 export default router;
