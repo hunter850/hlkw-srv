@@ -4,6 +4,7 @@ import * as path from "path";
 import dotenv from "dotenv";
 // routes
 import indexRoute from "./routes/index";
+import cronRoute from "./routes/cron";
 // types
 import type { Request, Response } from "express";
 
@@ -37,6 +38,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // index
 app.use("/api", indexRoute);
+app.use("/api/cron", cronRoute);
 
 // 404 錯誤處理
 app.use((req, res) => {

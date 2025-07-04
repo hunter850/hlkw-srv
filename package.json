@@ -16,19 +16,24 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.842.0",
+    "axios": "^1.10.0",
     "better-sqlite3": "^12.2.0",
+    "cheerio": "^1.1.0",
     "cors": "^2.8.5",
     "drizzle-orm": "^0.44.2",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "uuid": "^11.1.0",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^24.0.8",
+    "@types/xml2js": "^0.4.14",
     "cross-env": "^7.0.3",
     "dotenv": "^17.0.0",
     "drizzle-kit": "^0.31.4",
