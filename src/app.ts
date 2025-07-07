@@ -1,12 +1,12 @@
+import chalk from "chalk";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-// types
 import type { Request, Response } from "express";
+import logger from "morgan";
 import * as path from "path";
 
 import cronRoute from "./routes/cron";
-// routes
 import indexRoute from "./routes/index";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
@@ -20,6 +20,7 @@ app.set("view engine", "ejs");
 
 // 中間件設定
 const origin = process.env.WHITE_LIST_ORIGIN!.split(",").map((item) => item.trim());
+app.use(logger("dev"));
 app.use(express.json());
 app.use(
     cors({
@@ -29,6 +30,12 @@ app.use(
 );
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.resolve(process.cwd(), "public")));
+
+app.use((req, res, next) => {
+    console.log(chalk.hex("#FFA500").bold("method: ", req.method));
+    console.log(chalk.green("route: ", req.originalUrl));
+    next();
+});
 
 // 路由設定 首頁
 app.get("/", (req: Request, res: Response) => {
