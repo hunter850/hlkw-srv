@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "cc9d3ad2-7d7e-42d5-82ef-8da6122810c6",
+  "id": "8f5dcba0-6da0-4dfa-b0fd-eaf52b1078bc",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "hololive_talent": {
@@ -79,7 +79,15 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "name": {
+          "name": "name",
+          "columns": [
+            "name"
+          ],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},

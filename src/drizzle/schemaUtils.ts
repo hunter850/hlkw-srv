@@ -14,4 +14,5 @@ export const createdAt = integer("created_at", { mode: "timestamp_ms" })
 
 export const updatedAt = integer("updated_at", { mode: "timestamp_ms" })
     .$defaultFn(() => new Date())
+    .$onUpdateFn(() => new Date())
     .notNull();

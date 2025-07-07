@@ -1,5 +1,6 @@
 import app from "./src/app";
 import { runMigrate } from "./src/drizzle/migrate";
+import triggerAllCronJobs from "./src/cron";
 
 const PORT = process?.env?.PORT ?? "3300";
 
@@ -18,6 +19,7 @@ const startServer = async () => {
       error
     );
   }
+  triggerAllCronJobs();
 
   // 無論migration成功或失敗都啟動server
   app.listen(PORT, () => {

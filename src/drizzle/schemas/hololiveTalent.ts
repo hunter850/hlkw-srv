@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { id, createdAt, updatedAt } from "../schemaUtils";
 
 export const HololiveTalentTable = sqliteTable("hololive_talent", {
@@ -12,4 +12,6 @@ export const HololiveTalentTable = sqliteTable("hololive_talent", {
     deleted: integer("deleted", { mode: "boolean" }).notNull().default(false),
     createdAt,
     updatedAt,
-});
+    },
+    (table) => [uniqueIndex("name").on(table.name)]
+);

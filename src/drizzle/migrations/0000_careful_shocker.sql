@@ -10,3 +10,5 @@ CREATE TABLE `hololive_talent` (
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL
 );
+--> statement-breakpoint
+CREATE UNIQUE INDEX `name` ON `hololive_talent` (`name`);
