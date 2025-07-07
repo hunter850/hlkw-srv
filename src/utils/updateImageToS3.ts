@@ -1,5 +1,6 @@
-import crypto from "crypto";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import crypto from "crypto";
+
 import s3 from "../modules/aws_upload";
 
 async function updateImageToS3(params: { buffer: Buffer; mimetype?: string }) {

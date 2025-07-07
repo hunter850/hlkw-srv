@@ -1,4 +1,4 @@
-import { text, integer } from "drizzle-orm/sqlite-core";
+import { integer, text } from "drizzle-orm/sqlite-core";
 import { v4 as uuidv4 } from "uuid";
 
 export const id = integer("id", { mode: "number" }).primaryKey({ autoIncrement: true });

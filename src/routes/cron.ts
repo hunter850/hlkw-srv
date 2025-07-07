@@ -1,7 +1,8 @@
 import { Router } from "express";
-import updateTalents from "../services/updateTalents";
 // types
 import type { Request, Response } from "express";
+
+import updateTalents from "../services/updateTalents";
 
 const router = Router();
 

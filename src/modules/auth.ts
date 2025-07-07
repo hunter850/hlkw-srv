@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from "express";
-import path from "path";
 import dotenv from "dotenv";
+import { NextFunction, Request, Response } from "express";
+import path from "path";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
@@ -11,7 +11,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env") });
  */
 export const passwordAuth = (req: Request, res: Response, next: NextFunction): void => {
     // 從請求標頭中獲取密碼
-    const authPassword = req.headers["x-password"] as (string | undefined);
+    const authPassword = req.headers["x-password"] as string | undefined;
     console.log("authPassword: ", authPassword);
     console.log("process.env.PASSWORD: ", process.env.PASSWORD);
     // 檢查密碼是否存在並與環境變數中的密碼相符

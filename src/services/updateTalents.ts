@@ -1,11 +1,12 @@
-import { db } from "../drizzle/db";
-import { HololiveTalentTable } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
-import urlImageToS3 from "../utils/urlImageToS3";
-import requestErrorHandler from "../modules/requestErrorHandler";
-import TalentParser from "./talentParser";
-import { buildConflictUpdateColumns } from "../drizzle/drizzle-utils";
 import type { Response } from "express";
+
+import { db } from "../drizzle/db";
+import { buildConflictUpdateColumns } from "../drizzle/drizzle-utils";
+import { HololiveTalentTable } from "../drizzle/schema";
+import requestErrorHandler from "../modules/requestErrorHandler";
+import urlImageToS3 from "../utils/urlImageToS3";
+import TalentParser from "./talentParser";
 
 const talentParser = new TalentParser();
 
@@ -19,9 +20,7 @@ async function updateTalents(res?: Response) {
         const dbTalentNames = allTalentsInDb.map((talent) => talent.name);
         // insert
         const talentsToAdd = newTalents.filter((talent) => {
-            return typeof talent.name !== "string"
-                ? false
-                : !dbTalentNames.includes(talent.name);
+            return typeof talent.name !== "string" ? false : !dbTalentNames.includes(talent.name);
         });
         if (talentsToAdd.length > 0) {
             const talentsToAddWithS3Image = await Promise.all(
@@ -72,15 +71,20 @@ async function updateTalents(res?: Response) {
             return typeof talent.name !== "string" ? false : dbTalentNames.includes(talent.name);
         });
         if (talentsToUpdate.length > 0) {
-            await db.insert(HololiveTalentTable).values(talentsToUpdate.map((talent) => ({
-                name: talent.name,
-                enName: talent.en_name,
-                status: talent.status,
-                youtubeLink: talent.youtube_link,
-            }))).onConflictDoUpdate({
-                target: HololiveTalentTable.name,
-                set: buildConflictUpdateColumns(HololiveTalentTable, ["enName", "status", "youtubeLink"]),
-            });
+            await db
+                .insert(HololiveTalentTable)
+                .values(
+                    talentsToUpdate.map((talent) => ({
+                        name: talent.name,
+                        enName: talent.en_name,
+                        status: talent.status,
+                        youtubeLink: talent.youtube_link,
+                    }))
+                )
+                .onConflictDoUpdate({
+                    target: HololiveTalentTable.name,
+                    set: buildConflictUpdateColumns(HololiveTalentTable, ["enName", "status", "youtubeLink"]),
+                });
         }
         if (res) {
             res.status(200).json({ success: true, data: newTalents });

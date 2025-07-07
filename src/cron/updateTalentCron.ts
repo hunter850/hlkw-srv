@@ -1,5 +1,6 @@
-import updateTalents from "../services/updateTalents";
 import cron from "node-cron";
+
+import updateTalents from "../services/updateTalents";
 
 function updateTalentCron() {
     cron.schedule("0 0 * * *", () => {

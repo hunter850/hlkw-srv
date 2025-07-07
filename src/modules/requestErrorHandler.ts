@@ -1,5 +1,6 @@
-import logger from "./logger";
 import type { Response } from "express";
+
+import logger from "./logger";
 
 function requestErrorHandler(res: Response, error: any) {
     console.log("error: ", error);

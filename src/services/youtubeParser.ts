@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
+
 import urlRemoveQueryString from "../utils/urlRemoveQueryString";
 
 export interface Video {
@@ -87,7 +88,8 @@ class TalentParser {
                             ] ?? "none",
                         membershipOnly:
                             content?.richItemRenderer?.content?.videoRenderer?.badges?.find(
-                                (badge: Record<string, any>) => badge?.metadataBadgeRenderer?.style === "BADGE_STYLE_TYPE_MEMBERS_ONLY"
+                                (badge: Record<string, any>) =>
+                                    badge?.metadataBadgeRenderer?.style === "BADGE_STYLE_TYPE_MEMBERS_ONLY"
                             ) !== undefined,
                     };
                 }) ?? [];

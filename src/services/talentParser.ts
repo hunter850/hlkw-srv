@@ -1,8 +1,9 @@
 import axios from "axios";
-import xml2js from "xml2js";
 import * as cheerio from "cheerio";
-import * as path from "path";
 import dotenv from "dotenv";
+import * as path from "path";
+import xml2js from "xml2js";
+
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 class TalentParser {

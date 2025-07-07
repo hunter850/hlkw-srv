@@ -1,13 +1,14 @@
+import { and, eq } from "drizzle-orm";
 import { Router } from "express";
-import path from "path";
-import { passwordAuth } from "../modules/auth";
-import { eq, and } from "drizzle-orm";
-import { db } from "../drizzle/db";
-import { HololiveTalentTable } from "../drizzle/schema";
-import requestErrorHandler from "../modules/requestErrorHandler";
-import TalentParser from "../services/youtubeParser";
 // types
 import type { Request, Response } from "express";
+import path from "path";
+
+import { db } from "../drizzle/db";
+import { HololiveTalentTable } from "../drizzle/schema";
+import { passwordAuth } from "../modules/auth";
+import requestErrorHandler from "../modules/requestErrorHandler";
+import TalentParser from "../services/youtubeParser";
 import type { RequestBody, RequestQuery } from "../types";
 
 const router = Router();
