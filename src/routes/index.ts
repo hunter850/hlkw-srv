@@ -14,7 +14,7 @@ router.get("/now", (_req: Request, res: Response) => {
     }
 });
 
-router.get("/download/db", (_req: Request, res: Response) => {
+router.get("/download_db", (_req: Request, res: Response) => {
     try {
         const dbPath =
             process.env.NODE_ENV === "development" ? path.join(process.cwd(), "db", "sqlite.db") : process.env.DB_PATH!;
