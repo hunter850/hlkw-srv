@@ -7,6 +7,7 @@ import logger from "morgan";
 import * as path from "path";
 
 import cronRoute from "./routes/cron";
+import holoRoute from "./routes/holo";
 import indexRoute from "./routes/index";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
@@ -44,6 +45,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // index
 app.use("/api", indexRoute);
+app.use("/api/holo", holoRoute);
 app.use("/api/cron", cronRoute);
 
 // 404 錯誤處理
