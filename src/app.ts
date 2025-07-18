@@ -9,6 +9,7 @@ import * as path from "path";
 import cronRoute from "./routes/cron";
 import holoRoute from "./routes/holo";
 import indexRoute from "./routes/index";
+import ytRoute from "./routes/yt";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
@@ -47,6 +48,7 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api", indexRoute);
 app.use("/api/holo", holoRoute);
 app.use("/api/cron", cronRoute);
+app.use("/api/yt", ytRoute);
 
 // 404 錯誤處理
 app.use((req, res) => {
