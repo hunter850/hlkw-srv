@@ -12,6 +12,57 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env") });
  * 完美支援 Render、Vercel、Heroku 等雲端平台
  */
 export class YouTubeHDDownloader {
+    // 用戶代理列表
+    private static userAgents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    ];
+
+    /**
+     * 獲取隨機用戶代理
+     */
+    private static getRandomUserAgent(): string {
+        return this.userAgents[Math.floor(Math.random() * this.userAgents.length)];
+    }
+
+    /**
+     * 創建增強的 ytdl 選項配置
+     */
+    private static createYtdlOptions() {
+        const cookies = process?.env?.YOUTUBE_COOKIE ? JSON.parse(process?.env?.YOUTUBE_COOKIE) : undefined;
+        const userAgent = this.getRandomUserAgent();
+
+        const agent = ytdl.createAgent(cookies);
+
+        const options = {
+            agent,
+            requestOptions: {
+                headers: {
+                    "User-Agent": userAgent,
+                    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+                    "Accept-Language": "en-US,en;q=0.9,zh-TW;q=0.8,zh;q=0.7",
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Cache-Control": "no-cache",
+                    Pragma: "no-cache",
+                    "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+                    "Sec-Ch-Ua-Mobile": "?0",
+                    "Sec-Ch-Ua-Platform": '"Windows"',
+                    "Sec-Fetch-Dest": "document",
+                    "Sec-Fetch-Mode": "navigate",
+                    "Sec-Fetch-Site": "none",
+                    "Sec-Fetch-User": "?1",
+                    "Upgrade-Insecure-Requests": "1",
+                },
+                timeout: 30000,
+            },
+        };
+
+        return options;
+    }
+
     /**
      * 檢查 ffmpeg-static 是否可用
      */
@@ -31,9 +82,8 @@ export class YouTubeHDDownloader {
      * 獲取最佳的影片和音頻格式
      */
     static async getBestFormats(url: string) {
-        const cookies = process?.env?.YOUTUBE_COOKIE ? JSON.parse(process?.env?.YOUTUBE_COOKIE) : undefined;
-        const agent = ytdl.createAgent(cookies);
-        const info = await ytdl.getInfo(url, { agent });
+        const options = this.createYtdlOptions();
+        const info = await ytdl.getInfo(url, options);
 
         // 取得所有影片格式（僅影片，無音頻）
         const videoFormats = ytdl.filterFormats(info.formats, "videoonly");
@@ -85,54 +135,38 @@ export class YouTubeHDDownloader {
                 throw new Error("Video or audio format URL is missing");
             }
 
-            // 調試訊息
-            // console.log("Video format:", {
-            //     quality: bestVideo.qualityLabel,
-            //     codec: bestVideo.videoCodec,
-            //     hasUrl: !!bestVideo.url,
-            // });
-            // console.log("Audio format:", {
-            //     codec: bestAudio.audioCodec,
-            //     bitrate: bestAudio.audioBitrate,
-            //     hasUrl: !!bestAudio.url,
-            // });
-
             // 3. 設置回應 headers
-            const title = info.videoDetails.title.replace(/[^\w\s]/gi, "");
+            const title = info.videoDetails.title.replace(/[^\w\s\u4e00-\u9fff]/gi, "");
             res.setHeader("Content-Type", "video/mp4");
-            res.setHeader("Content-Disposition", `attachment; filename="${title}_HD.mp4"`);
+            res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(title)}_HD.mp4"`);
             res.setHeader("Cache-Control", "no-cache");
             res.setHeader("Accept-Ranges", "bytes");
-            // 設置傳輸編碼為 chunked，讓客戶端知道這是流式傳輸
             res.setHeader("Transfer-Encoding", "chunked");
 
-            // 4. 直接使用 URL 的簡化方法 (避免管道問題)
+            // 4. FFmpeg 處理
             const ffmpeg: ChildProcess = spawn(
                 ffmpegPath!,
                 [
-                    // 輸入 1: 影片 URL
+                    "-user_agent",
+                    this.getRandomUserAgent(),
                     "-i",
                     bestVideo.url,
-                    // 輸入 2: 音頻 URL
                     "-i",
                     bestAudio.url,
-                    // 影片編碼：直接複製（YouTube的1080p通常已經是H.264）
                     "-c:v",
                     "copy",
-                    // 音頻編碼：AAC with QuickTime 相容設定
                     "-c:a",
                     "aac",
                     "-b:a",
                     "128k",
                     "-ar",
                     "44100",
-                    // 輸出格式 - 使用支援流式輸出的 MP4 設定
                     "-f",
                     "mp4",
-                    // 流式 MP4 的 movflags
                     "-movflags",
                     "frag_keyframe+empty_moov",
-                    // 輸出到 stdout
+                    "-loglevel",
+                    "warning",
                     "-",
                 ],
                 {
@@ -140,61 +174,46 @@ export class YouTubeHDDownloader {
                 }
             );
 
-            // 5. 改善的輸出處理
-            if (ffmpeg.stdio && ffmpeg.stdio[2]) {
-                // 不要讓客戶端斷開立即殺死 FFmpeg
+            // 5. 輸出處理
+            if (ffmpeg.stdout) {
                 res.on("close", () => {
-                    // 延遲殺死 FFmpeg，讓它有機會完成
                     setTimeout(() => {
-                        console.log("Client disconnected (delayed), killing FFmpeg");
+                        console.log("Client disconnected, killing FFmpeg");
                         ffmpeg.kill();
                     }, 1000);
                 });
 
-                ffmpeg.stdout?.pipe(res);
+                ffmpeg.stdout.pipe(res);
             }
 
-            // 7. 錯誤處理和進度監控
+            // 6. 錯誤處理和進度監控
             let progressTimeout: NodeJS.Timeout | null = null;
 
-            // 重設進度超時的函數
             const resetProgressTimeout = () => {
                 if (progressTimeout) clearTimeout(progressTimeout);
-
-                // 如果5分鐘內沒有新的輸出，認為FFmpeg卡住了
                 progressTimeout = setTimeout(
                     () => {
-                        console.log("FFmpeg appears stuck (no output for 5 minutes), killing process");
+                        console.log("FFmpeg timeout, killing process");
                         ffmpeg.kill("SIGKILL");
                         if (!res.headersSent) {
                             res.status(408).json({
                                 success: false,
-                                message: "Video processing appears stuck",
+                                message: "Video processing timeout",
                             });
                         }
                     },
                     5 * 60 * 1000
-                ); // 5分鐘無輸出超時
+                );
             };
 
-            // 監控FFmpeg stderr獲取進度信息
-            ffmpeg.stderr?.on("data", (data) => {
-                const output = data.toString();
-                // 重設進度超時（有輸出說明還在處理）
+            ffmpeg.stderr?.on("data", () => {
                 resetProgressTimeout();
-
-                // 可以解析進度信息（可選）
-                if (output.includes("time=") || output.includes("frame=")) {
-                    // console.log("FFmpeg progress:", output.match(/time=[\d\:\.]+/)?.[0]);
-                }
             });
 
-            // 監控stdout輸出（視頻數據）
             ffmpeg.stdout?.on("data", () => {
-                resetProgressTimeout(); // 有視頻輸出，重設超時
+                resetProgressTimeout();
             });
 
-            // 初始設定進度超時
             resetProgressTimeout();
 
             ffmpeg.on("error", (error: any) => {
@@ -208,24 +227,18 @@ export class YouTubeHDDownloader {
                 }
             });
 
-            // 處理回應錯誤
             res.on("error", (error: any) => {
                 console.error("Response error:", error);
                 ffmpeg.kill();
             });
 
-            // 8. 智能超時處理 (根據影片長度動態調整)
+            // 7. 智能超時處理
             const videoDurationSeconds = parseInt(info.videoDetails.lengthSeconds) || 0;
-            const estimatedProcessingTime = Math.max(
-                videoDurationSeconds * 2, // 處理時間約為影片長度的2倍
-                10 * 60 // 最少10分鐘
-            );
-            const maxTimeout = Math.min(estimatedProcessingTime, 45 * 60); // 最多45分鐘
-
-            console.log(`Video duration: ${videoDurationSeconds}s, Timeout set to: ${maxTimeout}s`);
+            const estimatedProcessingTime = Math.max(videoDurationSeconds * 2, 10 * 60);
+            const maxTimeout = Math.min(estimatedProcessingTime, 45 * 60);
 
             const timeout = setTimeout(() => {
-                console.log(`FFmpeg timeout after ${maxTimeout}s, killing process`);
+                console.log(`FFmpeg timeout after ${maxTimeout}s`);
                 ffmpeg.kill("SIGKILL");
                 if (!res.headersSent) {
                     res.status(408).json({
@@ -235,14 +248,13 @@ export class YouTubeHDDownloader {
                 }
             }, maxTimeout * 1000);
 
-            // 9. 完成處理
+            // 8. 完成處理
             ffmpeg.on("close", (code, signal) => {
                 clearTimeout(timeout);
                 if (progressTimeout) clearTimeout(progressTimeout);
                 console.log(`FFmpeg exited with code ${code}, signal ${signal}`);
                 if (code === 0) {
                     console.log("FFmpeg completed successfully");
-                    // 確保回應正確結束
                     if (!res.finished) {
                         res.end();
                     }
