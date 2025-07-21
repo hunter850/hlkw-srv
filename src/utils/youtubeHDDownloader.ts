@@ -1,7 +1,11 @@
 import ytdl from "@distube/ytdl-core";
 import { ChildProcess, spawn } from "child_process";
+import dotenv from "dotenv";
 import type { Response } from "express";
 import ffmpegPath from "ffmpeg-static";
+import path from "path";
+
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 /**
  * YouTube HD 下載器 - 使用 ffmpeg-static 跨平台 FFmpeg
@@ -27,7 +31,9 @@ export class YouTubeHDDownloader {
      * 獲取最佳的影片和音頻格式
      */
     static async getBestFormats(url: string) {
-        const info = await ytdl.getInfo(url);
+        const cookies = process?.env?.YOUTUBE_COOKIE ? JSON.parse(process?.env?.YOUTUBE_COOKIE) : undefined;
+        const agent = ytdl.createAgent(cookies);
+        const info = await ytdl.getInfo(url, { agent });
 
         // 取得所有影片格式（僅影片，無音頻）
         const videoFormats = ytdl.filterFormats(info.formats, "videoonly");
