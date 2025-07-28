@@ -10,6 +10,7 @@ import cronRoute from "./routes/cron";
 import holoRoute from "./routes/holo";
 import indexRoute from "./routes/index";
 import ytRoute from "./routes/yt";
+import type { RequestWithRawBuffer } from "./types";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
@@ -23,7 +24,13 @@ app.set("view engine", "ejs");
 // 中間件設定
 const origin = process.env.WHITE_LIST_ORIGIN!.split(",").map((item) => item.trim());
 app.use(logger("dev"));
-app.use(express.json());
+app.use(
+    express.json({
+        verify: (req: RequestWithRawBuffer, _res, buff) => {
+            req.rawBuffer = buff;
+        },
+    })
+);
 app.use(
     cors({
         credentials: true,
