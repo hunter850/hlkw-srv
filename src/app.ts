@@ -6,6 +6,7 @@ import type { Request, Response } from "express";
 import logger from "morgan";
 import * as path from "path";
 
+import bd2Route from "./routes/bd2";
 import cronRoute from "./routes/cron";
 import holoRoute from "./routes/holo";
 import indexRoute from "./routes/index";
@@ -56,6 +57,7 @@ app.use("/api", indexRoute);
 app.use("/api/holo", holoRoute);
 app.use("/api/cron", cronRoute);
 app.use("/api/yt", ytRoute);
+app.use("/api/bd2", bd2Route);
 
 // 404 錯誤處理
 app.use((req, res) => {
