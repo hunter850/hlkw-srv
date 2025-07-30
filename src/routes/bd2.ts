@@ -27,6 +27,7 @@ export interface LineMessageEvent {
     source: {
         type: string;
         userId: string;
+        groupId?: string;
     };
     replyToken: string;
     mode: string;
