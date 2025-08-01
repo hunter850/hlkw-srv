@@ -9,7 +9,12 @@
     "db:generate": "drizzle-kit generate",
     "db:drop": "drizzle-kit drop",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:bd2:generate": "drizzle-kit generate --config bd2-drizzle-.config.ts",
+    "db:bd2:drop": "drizzle-kit drop --config bd2-drizzle-.config.ts",
+    "db:bd2:migrate": "drizzle-kit migrate --config bd2-drizzle-.config.ts",
+    "db:bd2:studio": "drizzle-kit studio --config bd2-drizzle-.config.ts",
+    "run:test": "cross-env NODE_ENV=development ts-node test.ts"
   },
   "keywords": [],
   "author": "",
