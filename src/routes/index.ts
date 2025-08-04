@@ -1,7 +1,8 @@
 import { Router } from "express";
-// types
 import type { Request, Response } from "express";
 import path from "path";
+
+import type { RequestQuery } from "../types";
 
 const router = Router();
 
@@ -14,11 +15,18 @@ router.get("/now", (_req: Request, res: Response) => {
     }
 });
 
-router.get("/download_db", (_req: Request, res: Response) => {
+router.get("/download_db", (req: RequestQuery<{ name: string }>, res: Response) => {
     try {
+        if (!req.query.name) {
+            res.status(400).json({ success: false, message: "Database name is required" });
+            return;
+        }
+
         const dbPath =
-            process.env.NODE_ENV === "development" ? path.join(process.cwd(), "db", "sqlite.db") : process.env.DB_PATH!;
-        res.download(dbPath, "sqlite.db", (err) => {
+            process.env.NODE_ENV === "development"
+                ? path.join(process.cwd(), "db", `${req.query.name}.db`)
+                : `${process.env.DB_PATH}/${req.query.name}.db`;
+        res.download(dbPath, `${req.query.name}.db`, (err) => {
             if (err) {
                 console.error("Download error:", err);
                 if (!res.headersSent) {
