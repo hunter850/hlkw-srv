@@ -3,8 +3,8 @@ import { like, or } from "drizzle-orm";
 import { Router } from "express";
 import path from "path";
 
-import { CharacterTable } from "../drizzle/bd2Schemas/character";
 import { db } from "../drizzle/dbs/bd2Db";
+import { CharacterTable } from "../drizzle/schemas/bd2/character";
 import lineSignatureValidater from "../modules/lineSignatureValidater";
 import requestErrorHandler from "../modules/requestErrorHandler";
 import type { RequestWithRawBuffer } from "../types";

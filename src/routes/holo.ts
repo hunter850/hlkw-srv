@@ -3,8 +3,8 @@ import { Router } from "express";
 // types
 import type { Response } from "express";
 
-import { db } from "../drizzle/db";
-import { HololiveTalentTable } from "../drizzle/schema";
+import { db } from "../drizzle/dbs/hololiveDb";
+import { HololiveTalentTable } from "../drizzle/schemas/hololive";
 import { passwordAuth } from "../modules/auth";
 import requestErrorHandler from "../modules/requestErrorHandler";
 import TalentParser from "../services/youtubeParser";

@@ -1,6 +1,6 @@
 import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
-import { createdAt, id, updatedAt } from "../schemaUtils";
+import { createdAt, id, updatedAt } from "../../schemaUtils";
 
 export const HololiveTalentTable = sqliteTable(
     "hololive_talent",

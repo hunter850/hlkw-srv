@@ -1,8 +1,8 @@
 import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
-import { CostumeTable } from "../bd2Schemas";
-import { createdAt, id, updatedAt } from "../schemaUtils";
+import { createdAt, id, updatedAt } from "../../schemaUtils";
+import { CostumeTable } from "../bd2";
 
 export const CharacterTable = sqliteTable(
     "character",

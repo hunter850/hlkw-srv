@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 import type { Response } from "express";
 
-import { db } from "../drizzle/db";
+import { db } from "../drizzle/dbs/hololiveDb";
 import { buildConflictUpdateColumns } from "../drizzle/drizzle-utils";
-import { HololiveTalentTable } from "../drizzle/schema";
+import { HololiveTalentTable } from "../drizzle/schemas/hololive";
 import requestErrorHandler from "../modules/requestErrorHandler";
 import urlImageToS3 from "../utils/urlImageToS3";
 import TalentParser from "./talentParser";

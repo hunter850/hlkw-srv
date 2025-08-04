@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import path from "path";
 
-import * as schema from "../bd2Schemas";
+import * as schema from "../schemas/bd2";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
