@@ -78,8 +78,6 @@ const lineMessageDeciders: {
                         )
                         .limit(10); // 限制結果數量避免過多
                     if (characters.length === 0) {
-                        const allCharacters = await db.select().from(CharacterTable);
-                        console.log("allCharacters: ", allCharacters);
                         await replyPlainTextLineMessage(replyToken, `找不到匹配的角色：${characterName}`);
                         return;
                     }
