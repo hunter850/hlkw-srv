@@ -10,8 +10,8 @@ const dbUrl =
         : `file://${dbPath}`; // Unix (Mac/Linux): file:///path/to/file
 
 export default defineConfig({
-    schema: path.relative(process.cwd(), "src/drizzle/bd2Schemas"),
-    out: path.relative(process.cwd(), "src/drizzle/bd2Migrations"),
+    schema: path.relative(process.cwd(), "src/drizzle/schemas/bd2"),
+    out: path.relative(process.cwd(), "src/drizzle/migrations/bd2"),
     dialect: "sqlite",
     dbCredentials: {
         url: dbUrl,

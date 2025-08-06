@@ -10,7 +10,7 @@ const dbUrl =
         : `file://${dbPath}`; // Unix (Mac/Linux): file:///path/to/file
 
 export default defineConfig({
-    schema: path.relative(process.cwd(), "src/drizzle/hololive"),
+    schema: path.relative(process.cwd(), "src/drizzle/schemas/hololive"),
     out: path.relative(process.cwd(), "src/drizzle/migrations/hololive"),
     dialect: "sqlite",
     dbCredentials: {
