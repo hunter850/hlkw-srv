@@ -11,7 +11,7 @@ export const CostumeTable = sqliteTable("costume", {
     costumeAvatar: text("costume_avatar"),
     sp: integer("sp"),
     cd: integer("cd"),
-    chain: text("chain"),
+    chain: integer("chain"),
     characterId: integer("character_id")
         .notNull()
         .references(() => CharacterTable.id),
