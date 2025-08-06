@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
 
+import { runMigrate } from "../drizzle/migrate";
 import { passwordAuth } from "../modules/auth";
 import { uploadSingle } from "../modules/fileUpload";
 import type { RequestQuery } from "../types";
@@ -113,6 +114,15 @@ router.post("/upload_db", passwordAuth, uploadSingle("file"), (req: Request, res
     } catch (error: any) {
         console.error("Upload error:", error);
         res.status(500).json({ success: false, message: error?.message ?? "Upload failed" });
+    }
+});
+
+router.get("/migrate_db", passwordAuth, async (req: Request, res: Response) => {
+    try {
+        await runMigrate();
+        res.status(200).json({ success: true, message: "Database migrated successfully" });
+    } catch (error: any) {
+        res.status(500).json({ success: false, message: error?.message ?? "Unknown Error" });
     }
 });
 
