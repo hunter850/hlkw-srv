@@ -3,6 +3,7 @@ import type { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
 
+import { passwordAuth } from "../modules/auth";
 import { uploadSingle } from "../modules/fileUpload";
 import type { RequestQuery } from "../types";
 
@@ -41,7 +42,7 @@ router.get("/download_db", (req: RequestQuery<{ name: string }>, res: Response) 
     }
 });
 
-router.post("/upload_db", uploadSingle("file"), (req: Request, res: Response) => {
+router.post("/upload_db", passwordAuth, uploadSingle("file"), (req: Request, res: Response) => {
     try {
         if (!req.file) {
             res.status(400).json({ success: false, message: "No file uploaded" });
