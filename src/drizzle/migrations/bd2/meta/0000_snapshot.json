@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "d2dc286f-ae1a-441c-9577-eb232b5e28d8",
+  "id": "d87261bc-9f49-4278-87ac-931c8db8841e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "character": {
@@ -41,6 +41,30 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "property": {
+          "name": "property",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'fire'"
+        },
+        "attack_way": {
+          "name": "attack_way",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'front'"
+        },
+        "knock_back_direction": {
+          "name": "knock_back_direction",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
         },
         "atk": {
           "name": "atk",
@@ -123,7 +147,21 @@
           "isUnique": true
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "character_knock_back_direction_knock_back_direction_id_fk": {
+          "name": "character_knock_back_direction_knock_back_direction_id_fk",
+          "tableFrom": "character",
+          "tableTo": "knock_back_direction",
+          "columnsFrom": [
+            "knock_back_direction"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -175,7 +213,7 @@
         },
         "chain": {
           "name": "chain",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -186,6 +224,30 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "skill": {
+          "name": "skill",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'{\"0\":{\"skillDescription\":\"\",\"sp\":0,\"cd\":0,\"chain\":0},\"1\":{\"skillDescription\":\"\",\"sp\":0,\"cd\":0,\"chain\":0},\"2\":{\"skillDescription\":\"\",\"sp\":0,\"cd\":0,\"chain\":0},\"3\":{\"skillDescription\":\"\",\"sp\":0,\"cd\":0,\"chain\":0},\"4\":{\"skillDescription\":\"\",\"sp\":0,\"cd\":0,\"chain\":0},\"5\":{\"skillDescription\":\"\",\"sp\":0,\"cd\":0,\"chain\":0}}'"
+        },
+        "skill_range": {
+          "name": "skill_range",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "skill_potential": {
+          "name": "skill_potential",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'[]'"
         },
         "created_at": {
           "name": "created_at",
@@ -218,6 +280,60 @@
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "knock_back_direction": {
+      "name": "knock_back_direction",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "knock_back_direction": {
+          "name": "knock_back_direction",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'top'"
+        },
+        "property": {
+          "name": "property",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'fire'"
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}

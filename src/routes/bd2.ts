@@ -15,6 +15,23 @@ import replyPlainTextLineMessage from "../utils/replyPlainTextLineMessage";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
+function getPropertyColor(property: typeof CharacterTable.$inferSelect.property) {
+    switch (property) {
+        case "fire":
+            return "#ff0000";
+        case "water":
+            return "#0000ff";
+        case "wind":
+            return "#00ff00";
+        case "light":
+            return "#ff00ff";
+        case "dark":
+            return "#000000";
+        default:
+            return "#666666";
+    }
+}
+
 const router = Router();
 export interface LineMessageEvent {
     type: string;
@@ -22,7 +39,7 @@ export interface LineMessageEvent {
         type: string;
         id: string;
         quoteToken: string;
-        text: string;
+        text: string; // 使用者傳入的文字
     };
     webhookEventId: string;
     deliveryContext: {
@@ -31,10 +48,10 @@ export interface LineMessageEvent {
     timestamp: number;
     source: {
         type: string;
-        userId: string;
-        groupId?: string;
+        userId: string; // 使用者 ID
+        groupId?: string; // 群組 ID
     };
-    replyToken: string;
+    replyToken: string; // 回覆訊息時要帶在 header 中的 token
     mode: string;
 }
 
@@ -71,12 +88,14 @@ const lineMessageDeciders: {
                     const characters = await db.query.CharacterTable.findMany({
                         with: {
                             costumes: true,
+                            knockBackDirection: true,
                         },
                         where: or(
                             like(CharacterTable.name, `%${characterName}%`),
                             like(CharacterTable.enName, `%${characterName}%`)
                         ),
                     });
+                    console.log("characters: ", JSON.stringify(characters, null, 2));
                     if (characters.length === 0) {
                         await replyPlainTextLineMessage(replyToken, `找不到匹配的角色：${characterName}`);
                         return;
@@ -173,10 +192,14 @@ const lineMessageDeciders: {
                     let costumes = await db.query.CostumeTable.findMany({
                         where: like(CostumeTable.costumeName, `%${searchTerm}%`),
                         with: {
-                            character: true,
+                            character: {
+                                with: {
+                                    knockBackDirection: true,
+                                },
+                            },
                         },
                     });
-
+                    console.log("costumes: ", JSON.stringify(costumes, null, 2));
                     let isCharacterSearch = false;
 
                     if (costumes.length === 0) {
@@ -184,6 +207,7 @@ const lineMessageDeciders: {
                         const characters = await db.query.CharacterTable.findMany({
                             with: {
                                 costumes: true,
+                                knockBackDirection: true,
                             },
                             where: or(
                                 like(CharacterTable.name, `%${searchTerm}%`),
@@ -213,6 +237,10 @@ const lineMessageDeciders: {
 
                     // 構建 bubble
                     const bubbles = costumes.map((costume) => {
+                        console.log(
+                            "knockBackDirection: ",
+                            JSON.stringify(costume.character.knockBackDirection, null, 2)
+                        );
                         return {
                             type: "bubble" as const,
                             hero: {
@@ -235,11 +263,37 @@ const lineMessageDeciders: {
                                     },
                                     {
                                         type: "text",
-                                        text: `${costume.character.enName}\n${costume?.character?.atk ? `攻擊力：${costume?.character?.atk ?? "?"}` : `魔法力：${costume?.character?.matk ?? "?"}`}\n生命力：${costume?.character?.hp ?? "?"}\n防禦力：${costume?.character?.def ? `${costume.character.def * 100}%` : "?"}\n魔法抵抗：${typeof costume?.character?.mres === "number" && !Number.isNaN(costume.character.mres) ? `${costume.character.mres * 100}%` : "?"}\n暴擊率：${costume?.character?.critRate ? `${costume.character.critRate * 100}%` : "?"}\n暴擊傷害：${costume?.character?.critDmg ? `${costume.character.critDmg * 100}%` : "?"}\nSP：${costume.sp}\nCD：${costume.cd}\n連擊數：${costume.chain}`,
+                                        text: `${costume.character.enName}\n${costume?.character?.atk ? `攻擊力：${costume?.character?.atk ?? "?"}` : `魔法力：${costume?.character?.matk ?? "?"}`}\n生命力：${costume?.character?.hp ?? "?"}\n防禦力：${costume?.character?.def ? `${costume.character.def * 100}%` : "?"}\n魔法抵抗：${typeof costume?.character?.mres === "number" && !Number.isNaN(costume.character.mres) ? `${costume.character.mres * 100}%` : "?"}\n暴擊率：${costume?.character?.critRate ? `${costume.character.critRate * 100}%` : "?"}\n暴擊傷害：${costume?.character?.critDmg ? `${costume.character.critDmg * 100}%` : "?"}\nSP：${costume.sp}\nCD：${costume.cd}\n連擊數：${costume.chain}\n攻擊方式：`,
                                         size: "sm",
                                         color: "#666666",
                                         wrap: true,
                                         margin: "md",
+                                    },
+                                    {
+                                        type: "box",
+                                        layout: "horizontal",
+                                        margin: "md",
+                                        contents: [
+                                            {
+                                                type: "image",
+                                                url: costume.skillRange,
+                                                size: "xxs",
+                                                aspectMode: "cover",
+                                            },
+                                            {
+                                                type: "text",
+                                                text: costume.character.attackWay === "front" ? "最前方" : "跳過",
+                                                size: "sm",
+                                                color: getPropertyColor(costume.character.property),
+                                                wrap: true,
+                                            },
+                                            {
+                                                type: "image",
+                                                url: costume.character.knockBackDirection.image,
+                                                size: "xxs",
+                                                aspectMode: "cover",
+                                            },
+                                        ],
                                     },
                                 ],
                             },
